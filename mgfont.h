@@ -2,7 +2,7 @@
 #define MGFONT_H
 
 #include <ft2build.h>
-#include FT_FREETYPE_H
+#include <freetype/freetype.h>
 #include "mgtypes.h"
 
 typedef struct {
@@ -21,14 +21,14 @@ typedef struct {
     Int32 dy;
 } MgFontCharacter;
 
-MgFontLibrary* mgFontLibrary_create();
-void mgFontLibrary_destroy(MgFontLibrary* library);
+MgFontLibrary* MgFontLibrary_create();
+void MgFontLibrary_destroy(MgFontLibrary* library);
 
-MgFont* mgFont_create(MgFontLibrary* library, void* data, Int32 dataSize);
-void mgFont_destroy(MgFont* font);
-MgError mgFont_setSize(MgFont* font, Int32 size);
+MgFont* MgFont_create(MgFontLibrary* library, void* data, Int32 dataSize);
+void MgFont_destroy(MgFont* font);
+MgError MgFont_setSize(MgFont* font, Int32 size);
 
-MgFontCharacter* mgFontCharacter_create(MgFont* font, UInt32 utfCode);
-void mgFontCharacter_destroy(MgFontCharacter* character);
+MgFontCharacter* MgFontCharacter_create(MgFont* font, UInt32 utfCode);
+void MgFontCharacter_destroy(MgFontCharacter* character);
 
 #endif

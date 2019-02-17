@@ -3,8 +3,8 @@
 
 #include "mgtypes.h"
 
-void* mgMemory_allocate(Int32 size);
-void* mgMemory_resize(void* data, Int32 size);
-void mgMemory_free(void* data);
+void* MgMemory_allocate(UInt32 size);
+void* MgMemory_resize(void* data, UInt32 size);
+void MgMemory_free(void* data);
 
 #endif

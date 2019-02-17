@@ -22,6 +22,4 @@ typedef double Float64;
 
 typedef Int32 MgError;
 
-Int32 mgTypes_UInt32_to_Int32(UInt32 value);
-
 #endif

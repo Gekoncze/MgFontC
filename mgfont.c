@@ -7,7 +7,7 @@
 #define MAX_BITMAP_WIDTH 40000
 #define MAX_BITMAP_HEIGHT 40000
 
-MgFontLibrary* MgFontLibrary_create()
+MgFontLibrary* MgFontLibrary_create(void)
 {
     MgFontLibrary* library = MgMemory_allocate(sizeof(MgFontLibrary));
     if(library == NULL) return NULL;
@@ -49,6 +49,8 @@ MgFont* MgFont_create(MgFontLibrary* library, void* data, Int32 dataSize)
         MgFont_destroy(font);
         return NULL;
     }
+
+    font->name = font->ft_face->family_name;
     
     return font;
 }
@@ -70,15 +72,24 @@ MgError MgFont_setSize(MgFont* font, Int32 size)
     else return 0;
 }
 
+char* MgFont_getName(MgFont* font)
+{
+    return font->name;
+}
 
-MgFontCharacter* MgFontCharacter_create(MgFont* font, UInt32 utfCode)
+Int32 MgFont_canDisplay(MgFont *font, Int32 utfCode)
+{
+    return FT_Get_Char_Index(font->ft_face, (UInt32)utfCode) != 0;
+}
+
+MgFontCharacter* MgFontCharacter_create(MgFont* font, Int32 utfCode)
 {
     if(font == NULL) return NULL;
     
     MgFontCharacter* character = MgMemory_allocate(sizeof(MgFontCharacter));
     if(character == NULL) return NULL;
     
-    UInt32 index = FT_Get_Char_Index(font->ft_face, utfCode);
+    UInt32 index = FT_Get_Char_Index(font->ft_face, (UInt32)utfCode);
     FT_Error error = FT_Load_Glyph(font->ft_face, index, 0);
     if(error)
     {
@@ -95,6 +106,8 @@ MgFontCharacter* MgFontCharacter_create(MgFont* font, UInt32 utfCode)
     
     character->dx = font->ft_face->glyph->bitmap_left;
     character->dy = -font->ft_face->glyph->bitmap_top;
+    character->sx = (Int32)font->ft_face->glyph->metrics.width;
+    character->sy = (Int32)font->ft_face->glyph->metrics.height;
     character->width = (Int32)(font->ft_face->glyph->bitmap.width);
     character->height = (Int32)(font->ft_face->glyph->bitmap.rows);
     
@@ -120,6 +133,7 @@ MgFontCharacter* MgFontCharacter_create(MgFont* font, UInt32 utfCode)
             character->bitmap[i] = font->ft_face->glyph->bitmap.buffer[i];
         }
     }
+
     return character;
 }
 
@@ -128,4 +142,44 @@ void MgFontCharacter_destroy(MgFontCharacter* character)
     if(character == NULL) return;
     MgMemory_free(character->bitmap);
     MgMemory_free(character);
+}
+
+Int32 MgFontCharacter_getBitmapWidth(MgFontCharacter* character)
+{
+    return character->width;
+}
+
+Int32 MgFontCharacter_getBitmapHeight(MgFontCharacter* character)
+{
+    return character->height;
+}
+
+Int32 MgFontCharacter_getDeltaX(MgFontCharacter* character)
+{
+    return character->dx;
+}
+
+Int32 MgFontCharacter_getDeltaY(MgFontCharacter* character)
+{
+    return character->dy;
+}
+
+Int32 MgFontCharacter_getSizeX(MgFontCharacter* character)
+{
+    return character->sx;
+}
+
+Int32 MgFontCharacter_getSizeY(MgFontCharacter* character)
+{
+    return character->sy;
+}
+
+Int32 MgFontCharacter_read(MgFontCharacter* character, Int32 x, Int32 y)
+{
+    if(x < 0) return 0;
+    if(x >= character->width) return 0;
+    if(y < 0) return 0;
+    if(y >= character->height) return 0;
+    Int32 i = x + y*character->width;
+    return (Int32)(character->bitmap[i]);
 }
